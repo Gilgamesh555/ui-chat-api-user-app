@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UserApi.Data;
@@ -11,9 +12,11 @@ using UserApi.Data;
 namespace UserApi.Migrations
 {
     [DbContext(typeof(UserApiDbContext))]
-    partial class UserApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240702195125_AddNewTablesForContacts")]
+    partial class AddNewTablesForContacts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,16 +36,11 @@ namespace UserApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("GroupId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
 
                     b.ToTable("Chats", (string)null);
                 });
@@ -102,6 +100,9 @@ namespace UserApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("GroupId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("SenderId")
                         .HasColumnType("integer");
 
@@ -114,6 +115,8 @@ namespace UserApi.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ChatId");
+
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("SenderId");
 
@@ -179,15 +182,6 @@ namespace UserApi.Migrations
                     b.ToTable("UserGroups", (string)null);
                 });
 
-            modelBuilder.Entity("UserApi.Models.Chat", b =>
-                {
-                    b.HasOne("UserApi.Models.Group", "Group")
-                        .WithMany("Chats")
-                        .HasForeignKey("GroupId");
-
-                    b.Navigation("Group");
-                });
-
             modelBuilder.Entity("UserApi.Models.Contact", b =>
                 {
                     b.HasOne("UserApi.Models.User", "UserContact")
@@ -206,6 +200,10 @@ namespace UserApi.Migrations
                         .HasForeignKey("ChatId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("UserApi.Models.Group", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("GroupId");
 
                     b.HasOne("UserApi.Models.User", "User")
                         .WithMany("Messages")
@@ -244,7 +242,7 @@ namespace UserApi.Migrations
 
             modelBuilder.Entity("UserApi.Models.Group", b =>
                 {
-                    b.Navigation("Chats");
+                    b.Navigation("Messages");
 
                     b.Navigation("UserGroups");
                 });

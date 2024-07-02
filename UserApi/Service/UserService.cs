@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using UserApi.Data;
 using UserApi.Models;
 
@@ -79,6 +80,15 @@ namespace UserApi.Service
         {
             var user = _context.Users.FirstOrDefault(u => u.Username == username || u.Email == email);
             return user ?? throw new Exception("User not found");
+        }
+
+        public async Task<List<User>> Search(string query)
+        {
+            var response = await _context.Users
+                                         .Where(u => u.Username.Contains(query) || u.Email.Contains(query))
+                                         .ToListAsync();
+
+            return response;
         }
     }
 }

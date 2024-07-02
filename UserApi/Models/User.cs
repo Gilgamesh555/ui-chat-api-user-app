@@ -33,6 +33,12 @@ namespace UserApi.Models
 
         // Handling navigation
         [JsonIgnore]
-        public ICollection<UserChat>? UserChats { get; set; }
+        public ICollection<Message>? Messages { get; set; }
+
+        [JsonIgnore]
+        public ICollection<Contact>? Contacts { get; set; }
+
+        [JsonIgnore]
+        public ICollection<UserGroup>? UserGroups { get; set; }
     }
 }

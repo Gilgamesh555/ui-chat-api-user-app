@@ -6,17 +6,19 @@ using UserApi.Dtos;
 
 namespace UserApi.Models
 {
-    public class UserChat
+    public class Message
     {
-        [Required]
-        [Key, Column(Order = 0)]
-        public int UserId { get; set; }
+        [JsonIgnore]
+        [Key]
+        public int Id { get; set; }
 
         [Required]
-        [Key, Column(Order = 1)]
+        public int SenderId { get; set; }
+
+        [Required]
         public int ChatId { get; set; }
 
-        public UserChatStatus? Status { get; set; }
+        public MessageStatus? Status { get; set; }
 
         [JsonIgnore]
         public DateTime CreatedAt { get; set; }

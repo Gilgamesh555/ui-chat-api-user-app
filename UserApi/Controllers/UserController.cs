@@ -44,6 +44,21 @@ namespace UserApi.Controllers
             }
         }
 
+        // Search: api/user/search
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(string query)
+        {
+            try
+            {
+                var users = await _userService.Search(query);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         // POST: api/user
         [HttpPost]
         public async Task<ActionResult<User>> Post(User user)

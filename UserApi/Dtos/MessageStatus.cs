@@ -1,10 +1,12 @@
 namespace UserApi.Dtos
 {
-    public enum UserChatStatus
+    public enum MessageStatus
     {
         Pending,
         Accepted,
         Rejected,
-        Blocked
+        Blocked,
+        Unsent,
+        Kicked
     }
 }

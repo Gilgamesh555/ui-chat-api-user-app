@@ -3,39 +3,39 @@ using UserApi.Models;
 
 namespace UserApi.Service
 {
-    public class UserChatService
+    public class MessageService
     {
         private readonly UserApiDbContext _context;
 
-        public UserChatService(UserApiDbContext context)
+        public MessageService(UserApiDbContext context)
         {
             _context = context;
         }
 
-        public async Task<UserChat> Create(UserChat userChat)
+        public async Task<Message> Create(Message userChat)
         {
             if (userChat.Status == null)
             {
-                userChat.Status = Dtos.UserChatStatus.Pending;
+                userChat.Status = Dtos.MessageStatus.Unsent;
             }
 
-            _context.UserChats.Add(userChat);
+            _context.Messages.Add(userChat);
             await _context.SaveChangesAsync();
             return userChat;
         }
 
-        public async Task<UserChat> GetById(int userId, int chatId)
+        public async Task<Message> GetById(int userId, int chatId)
         {
-            var userChat = await _context.UserChats.FindAsync(userId, chatId);
+            var userChat = await _context.Messages.FindAsync(userId, chatId);
             return userChat ?? throw new Exception("UserChat not found");
         }
 
-        public IEnumerable<UserChat> GetAll()
+        public IEnumerable<Message> GetAll()
         {
-            return _context.UserChats.ToList();
+            return _context.Messages.ToList();
         }
 
-        public async Task<UserChat> HandleRequestInvitation(int userId, int chatId, Dtos.UserChatStatus status)
+        public async Task<Message> HandleRequestInvitation(int userId, int chatId, Dtos.MessageStatus status)
         {
             var userChat = await GetById(userId, chatId);
 
