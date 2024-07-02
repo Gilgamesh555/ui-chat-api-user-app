@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using UserApi.Dtos;
 
 namespace UserApi.Models
 {
@@ -15,7 +16,7 @@ namespace UserApi.Models
         [Key, Column(Order = 1)]
         public int ChatId { get; set; }
 
-        public string? Status { get; set; }
+        public UserChatStatus? Status { get; set; }
 
         [JsonIgnore]
         public DateTime CreatedAt { get; set; }

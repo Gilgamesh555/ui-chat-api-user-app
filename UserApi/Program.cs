@@ -11,11 +11,10 @@ builder.Services.AddDbContext<UserApiDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ChatService>();
 builder.Services.AddScoped<UserChatService>();
-
-builder.Services.AddScoped<AuthService>();
 
 // Add controllers
 builder.Services.AddControllers();

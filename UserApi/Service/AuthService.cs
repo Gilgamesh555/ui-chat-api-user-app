@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UserApi.Data;
 using UserApi.Dtos;
+using UserApi.Exceptions;
 using UserApi.Models;
 
 namespace UserApi.Service
@@ -19,17 +20,17 @@ namespace UserApi.Service
 
         public async Task<User> Authenticate_User(LoginRequest user)
         {
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == user.UserCredentials || u.Email == user.UserCredentials);
 
             if (existingUser == null)
             {
-                throw new Exception("User not found");
+                throw new UserNotFoundException("Invalid account, credentials not found");
             }
 
             var result = _passwordHasher.VerifyHashedPassword(existingUser, existingUser.Password, user.Password);
             if (result == PasswordVerificationResult.Failed)
             {
-                throw new Exception("Invalid password");
+                throw new Exception("Invalid username or password");
             }
 
             return existingUser;

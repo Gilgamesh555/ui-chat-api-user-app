@@ -44,5 +44,20 @@ namespace UserApi.Controllers
 
             return CreatedAtAction(nameof(GetUserChatById), new { userId = createdUserChat.UserId, chatId = createdUserChat.ChatId }, createdUserChat);
         }
+
+        // POST: api/userchat/{userId}/{chatId}/{status}
+        [HttpPost("{userId}/{chatId}/{status}")]
+        public async Task<IActionResult> HandleRequestInvitation(int userId, int chatId, Dtos.UserChatStatus status)
+        {
+            try
+            {
+                var userChat = await _userChatService.HandleRequestInvitation(userId, chatId, status);
+                return Ok(userChat);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { message = e.Message });
+            }
+        }
     }
 }

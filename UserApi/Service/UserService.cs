@@ -14,10 +14,10 @@ namespace UserApi.Service
         private readonly IPasswordHasher<User> _passwordHasher;
 
         // Constructor
-        public UserService(UserApiDbContext context)
+        public UserService(UserApiDbContext context, IPasswordHasher<User> passwordHasher)
         {
             _context = context;
-            _passwordHasher = new PasswordHasher<User>();
+            _passwordHasher = passwordHasher;
         }
 
         // Example method GetAll
@@ -74,5 +74,11 @@ namespace UserApi.Service
             _context.SaveChanges();
         }
 
+        // Example method GetByUsernameOrEmail
+        public User GetByUsernameOrEmail(string username, string email)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Username == username || u.Email == email);
+            return user ?? throw new Exception("User not found");
+        }
     }
 }

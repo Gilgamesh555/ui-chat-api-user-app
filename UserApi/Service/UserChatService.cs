@@ -14,6 +14,11 @@ namespace UserApi.Service
 
         public async Task<UserChat> Create(UserChat userChat)
         {
+            if (userChat.Status == null)
+            {
+                userChat.Status = Dtos.UserChatStatus.Pending;
+            }
+
             _context.UserChats.Add(userChat);
             await _context.SaveChangesAsync();
             return userChat;
@@ -28,6 +33,20 @@ namespace UserApi.Service
         public IEnumerable<UserChat> GetAll()
         {
             return _context.UserChats.ToList();
+        }
+
+        public async Task<UserChat> HandleRequestInvitation(int userId, int chatId, Dtos.UserChatStatus status)
+        {
+            var userChat = await GetById(userId, chatId);
+
+            if (userChat == null)
+            {
+                throw new Exception("UserChat not found");
+            }
+
+            userChat.Status = status;
+            await _context.SaveChangesAsync();
+            return userChat;
         }
     }
 }

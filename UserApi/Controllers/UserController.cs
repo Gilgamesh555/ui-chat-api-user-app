@@ -30,6 +30,20 @@ namespace UserApi.Controllers
             return Ok(_userService.GetById(id));
         }
 
+        // GET: api/user/{username}{email}
+        [HttpGet("{username}/{email}")]
+        public IActionResult GetUserByUsernameOrEmail(string username, string email)
+        {
+            try
+            {
+                return Ok(_userService.GetByUsernameOrEmail(username, email));
+            }
+            catch (System.Exception e)
+            {
+                return NotFound(new { message = e.Message });
+            }
+        }
+
         // POST: api/user
         [HttpPost]
         public async Task<ActionResult<User>> Post(User user)
