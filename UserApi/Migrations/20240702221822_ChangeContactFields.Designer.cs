@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UserApi.Data;
@@ -11,9 +12,11 @@ using UserApi.Data;
 namespace UserApi.Migrations
 {
     [DbContext(typeof(UserApiDbContext))]
-    partial class UserApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240702221822_ChangeContactFields")]
+    partial class ChangeContactFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,9 +59,6 @@ namespace UserApi.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
                     b.Property<int>("UserReceiverId")

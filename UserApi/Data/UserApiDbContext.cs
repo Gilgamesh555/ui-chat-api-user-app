@@ -49,7 +49,7 @@ namespace UserApi.Data
             // Contact
             modelBuilder.Entity<Contact>().ToTable("Contacts");
             modelBuilder.Entity<Contact>().HasKey(c => c.Id);
-            modelBuilder.Entity<Contact>().HasOne(c => c.UserContact).WithMany(u => u.Contacts).HasForeignKey(c => c.UserContactId);
+            modelBuilder.Entity<Contact>().HasOne(c => c.UserContact).WithMany(u => u.Contacts).HasForeignKey(c => c.UserSenderId);
         }
     }
 }

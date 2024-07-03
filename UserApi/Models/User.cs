@@ -6,7 +6,6 @@ namespace UserApi.Models
 {
     public class User
     {
-        [JsonIgnore]
         [Key]
         public int Id { get; set; }
 

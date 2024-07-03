@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UserApi.Data;
+using UserApi.Dtos;
 using UserApi.Models;
 
 namespace UserApi.Service
@@ -82,13 +83,110 @@ namespace UserApi.Service
             return user ?? throw new Exception("User not found");
         }
 
-        public async Task<List<User>> Search(string query)
+        public async Task<List<UserSearchRequest>> Search(string query, int userId)
         {
             var response = await _context.Users
                                          .Where(u => u.Username.Contains(query) || u.Email.Contains(query))
                                          .ToListAsync();
 
-            return response;
+            var contact = new Contact();
+
+            var userSearchRequests = new List<UserSearchRequest>();
+
+            foreach (var user in response)
+            {
+                if (user.Id == userId)
+                {
+                    continue;
+                }
+
+                contact = await _context.Contacts
+                                             .Where(c => c.UserReceiverId == user.Id)
+                                             .FirstOrDefaultAsync();
+
+                if (contact == null)
+                {
+                    userSearchRequests.Add(new UserSearchRequest
+                    {
+                        Id = user.Id,
+                        Username = user.Username,
+                        Email = user.Email,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Status = MessageStatus.Unsent
+                    });
+
+                    continue;
+                }
+
+                userSearchRequests.Add(new UserSearchRequest
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Status = contact.Status
+                });
+            }
+
+            return userSearchRequests;
+        }
+
+        public IEnumerable<UserSearchChatRequest> GetAllWithAcceptedContactStatusByUserId(int userId)
+        {
+            var contactsSent = _context.Contacts
+                                 .Where(c => c.UserSenderId == userId && c.Status == MessageStatus.Accepted)
+                                 .ToList();
+
+            var users = new List<UserSearchChatRequest>();
+
+            foreach (var contact in contactsSent)
+            {
+                var user = _context.Users.Find(contact.UserReceiverId);
+                if (user != null)
+                {
+                    users.Add(new UserSearchChatRequest
+                    {
+                        Id = user.Id,
+                        Username = user.Username,
+                        Email = user.Email,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        UserSenderId = contact.UserSenderId,
+                        UserReceiverId = contact.UserReceiverId,
+                        Status = contact.Status
+                    });
+                }
+            }
+
+            var contactsReceived = _context.Contacts
+                                     .Where(c => c.UserReceiverId == userId && c.Status == MessageStatus.Accepted)
+                                     .ToList();
+
+            foreach (var contact in contactsReceived)
+            {
+                var user = _context.Users.Find(contact.UserSenderId);
+
+                if (user != null)
+                {
+                    users.Add(new UserSearchChatRequest
+                    {
+                        Id = user.Id,
+                        Username = user.Username,
+                        Email = user.Email,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        UserSenderId = contact.UserReceiverId,
+                        UserReceiverId = contact.UserSenderId,
+                        Status = contact.Status
+                    });
+                }
+            }
+
+
+
+            return users;
         }
     }
 }

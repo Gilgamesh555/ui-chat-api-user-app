@@ -46,11 +46,11 @@ namespace UserApi.Controllers
 
         // Search: api/user/search
         [HttpGet("search")]
-        public async Task<IActionResult> Search(string query)
+        public async Task<IActionResult> Search(string query, int userId)
         {
             try
             {
-                var users = await _userService.Search(query);
+                var users = await _userService.Search(query, userId);
                 return Ok(users);
             }
             catch (Exception ex)
@@ -81,6 +81,14 @@ namespace UserApi.Controllers
         {
             _userService.Delete(id);
             return Ok();
+        }
+
+        // GET: api/user/{userId}/accepted-contacts
+        [HttpGet("{userId}/accepted-contacts")]
+        public IActionResult GetAllWithAcceptedContactStatusByUserId(int userId)
+        {
+            var users = _userService.GetAllWithAcceptedContactStatusByUserId(userId);
+            return Ok(users);
         }
     }
 }
