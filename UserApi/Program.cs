@@ -1,5 +1,8 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using UserApi.Data;
 using UserApi.Models;
 using UserApi.Service;
@@ -18,6 +21,25 @@ builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<UserGroupService>();
 builder.Services.AddScoped<GroupService>();
 builder.Services.AddScoped<ContactService>();
+builder.Services.AddScoped<ContactRequestService>();
+builder.Services.AddScoped<TokenService>();
+
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new Exception("jwt key not found"))),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
 // Add controllers
 builder.Services.AddControllers();
@@ -51,6 +73,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors(MyAllowSpecificOrigins);
+
+app.UseAuthorization();
 
 app.MapControllers();
 

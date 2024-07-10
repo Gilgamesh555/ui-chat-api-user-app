@@ -55,12 +55,6 @@ namespace UserApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("UserReceiverId")
                         .HasColumnType("integer");
 
@@ -72,6 +66,24 @@ namespace UserApi.Migrations
                     b.HasIndex("UserSenderId");
 
                     b.ToTable("Contacts", (string)null);
+                });
+
+            modelBuilder.Entity("UserApi.Models.ContactRequest", b =>
+                {
+                    b.Property<int>("UserSenderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserReceiverId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserSenderId", "UserReceiverId");
+
+                    b.HasIndex("UserReceiverId");
+
+                    b.ToTable("ContactRequests", (string)null);
                 });
 
             modelBuilder.Entity("UserApi.Models.Group", b =>
@@ -205,6 +217,25 @@ namespace UserApi.Migrations
                     b.Navigation("UserContact");
                 });
 
+            modelBuilder.Entity("UserApi.Models.ContactRequest", b =>
+                {
+                    b.HasOne("UserApi.Models.User", "UserReceiver")
+                        .WithMany("ContactRequestsReceived")
+                        .HasForeignKey("UserReceiverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UserApi.Models.User", "UserSender")
+                        .WithMany("ContactRequestsSent")
+                        .HasForeignKey("UserSenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserReceiver");
+
+                    b.Navigation("UserSender");
+                });
+
             modelBuilder.Entity("UserApi.Models.Message", b =>
                 {
                     b.HasOne("UserApi.Models.Chat", "Chat")
@@ -257,6 +288,10 @@ namespace UserApi.Migrations
 
             modelBuilder.Entity("UserApi.Models.User", b =>
                 {
+                    b.Navigation("ContactRequestsReceived");
+
+                    b.Navigation("ContactRequestsSent");
+
                     b.Navigation("Contacts");
 
                     b.Navigation("Messages");

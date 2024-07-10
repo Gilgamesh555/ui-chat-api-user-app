@@ -11,12 +11,20 @@ namespace UserApi.Dtos
         public required string LastName { get; set; }
         public required MessageStatus Status { get; set; }
 
-        public int? ContactId { get; set; }
+        public int? UserSenderId { get; set; }
+        public int? UserReceiverId { get; set; }
     }
 
-    public class UserSearchChatRequest : UserSearchRequest
+    public class UserSearchChatRequest
     {
-        public required int UserSenderId { get; set; }
-        public required int UserReceiverId { get; set; }
+        public required int Id { get; set; }
+        public required string Username { get; set; }
+        public required string Email { get; set; }
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
+        public MessageStatus? Status { get; set; }
+
+        public int? UserSenderId { get; set; }
+        public int? UserReceiverId { get; set; }
     }
 }

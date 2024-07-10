@@ -89,8 +89,6 @@ namespace UserApi.Service
                                          .Where(u => u.Username.Contains(query) || u.Email.Contains(query))
                                          .ToListAsync();
 
-            var contact = new Contact();
-
             var userSearchRequests = new List<UserSearchRequest>();
 
             foreach (var user in response)
@@ -100,11 +98,12 @@ namespace UserApi.Service
                     continue;
                 }
 
-                contact = await _context.Contacts
-                                             .Where(c => c.UserReceiverId == user.Id)
-                                             .FirstOrDefaultAsync();
+                var contactRequest = await _context.ContactRequests
+                                                  .Where(c =>
+                                                    (c.UserSenderId == userId && c.UserReceiverId == user.Id) || (c.UserSenderId == user.Id && c.UserReceiverId == userId))
+                                                  .FirstOrDefaultAsync();
 
-                if (contact == null)
+                if (contactRequest == null)
                 {
                     userSearchRequests.Add(new UserSearchRequest
                     {
@@ -126,7 +125,7 @@ namespace UserApi.Service
                     Email = user.Email,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
-                    Status = contact.Status
+                    Status = contactRequest.Status
                 });
             }
 
@@ -136,37 +135,23 @@ namespace UserApi.Service
         public IEnumerable<UserSearchChatRequest> GetAllWithAcceptedContactStatusByUserId(int userId)
         {
             var contactsSent = _context.Contacts
-                                 .Where(c => c.UserSenderId == userId && c.Status == MessageStatus.Accepted)
+                                 .Where(c => c.UserSenderId == userId || c.UserReceiverId == userId)
                                  .ToList();
+
+            Console.WriteLine(contactsSent.Count);
 
             var users = new List<UserSearchChatRequest>();
 
             foreach (var contact in contactsSent)
             {
-                var user = _context.Users.Find(contact.UserReceiverId);
-                if (user != null)
-                {
-                    users.Add(new UserSearchChatRequest
-                    {
-                        Id = user.Id,
-                        Username = user.Username,
-                        Email = user.Email,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        UserSenderId = contact.UserSenderId,
-                        UserReceiverId = contact.UserReceiverId,
-                        Status = contact.Status
-                    });
-                }
-            }
-
-            var contactsReceived = _context.Contacts
-                                     .Where(c => c.UserReceiverId == userId && c.Status == MessageStatus.Accepted)
-                                     .ToList();
-
-            foreach (var contact in contactsReceived)
-            {
                 var user = _context.Users.Find(contact.UserSenderId);
+                bool isUserSender = true;
+
+                if (contact.UserSenderId == userId)
+                {
+                    user = _context.Users.Find(contact.UserReceiverId);
+                    isUserSender = false;
+                }
 
                 if (user != null)
                 {
@@ -177,14 +162,11 @@ namespace UserApi.Service
                         Email = user.Email,
                         FirstName = user.FirstName,
                         LastName = user.LastName,
-                        UserSenderId = contact.UserReceiverId,
-                        UserReceiverId = contact.UserSenderId,
-                        Status = contact.Status
+                        UserSenderId = isUserSender ? contact.UserSenderId : contact.UserReceiverId,
+                        UserReceiverId = isUserSender ? contact.UserReceiverId : contact.UserSenderId,
                     });
                 }
             }
-
-
 
             return users;
         }

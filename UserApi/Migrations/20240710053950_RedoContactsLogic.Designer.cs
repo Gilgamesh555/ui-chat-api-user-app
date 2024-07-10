@@ -12,8 +12,8 @@ using UserApi.Data;
 namespace UserApi.Migrations
 {
     [DbContext(typeof(UserApiDbContext))]
-    [Migration("20240702200829_AddRelationToChatGroup")]
-    partial class AddRelationToChatGroup
+    [Migration("20240710053950_RedoContactsLogic")]
+    partial class RedoContactsLogic
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,17 +58,35 @@ namespace UserApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Status")
+                    b.Property<int>("UserReceiverId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserContactId")
+                    b.Property<int>("UserSenderId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserContactId");
+                    b.HasIndex("UserSenderId");
 
                     b.ToTable("Contacts", (string)null);
+                });
+
+            modelBuilder.Entity("UserApi.Models.ContactRequest", b =>
+                {
+                    b.Property<int>("UserSenderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserReceiverId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserSenderId", "UserReceiverId");
+
+                    b.HasIndex("UserReceiverId");
+
+                    b.ToTable("ContactRequests", (string)null);
                 });
 
             modelBuilder.Entity("UserApi.Models.Group", b =>
@@ -195,11 +213,30 @@ namespace UserApi.Migrations
                 {
                     b.HasOne("UserApi.Models.User", "UserContact")
                         .WithMany("Contacts")
-                        .HasForeignKey("UserContactId")
+                        .HasForeignKey("UserSenderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("UserContact");
+                });
+
+            modelBuilder.Entity("UserApi.Models.ContactRequest", b =>
+                {
+                    b.HasOne("UserApi.Models.User", "UserReceiver")
+                        .WithMany("ContactRequestsReceived")
+                        .HasForeignKey("UserReceiverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UserApi.Models.User", "UserSender")
+                        .WithMany("ContactRequestsSent")
+                        .HasForeignKey("UserSenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserReceiver");
+
+                    b.Navigation("UserSender");
                 });
 
             modelBuilder.Entity("UserApi.Models.Message", b =>
@@ -254,6 +291,10 @@ namespace UserApi.Migrations
 
             modelBuilder.Entity("UserApi.Models.User", b =>
                 {
+                    b.Navigation("ContactRequestsReceived");
+
+                    b.Navigation("ContactRequestsSent");
+
                     b.Navigation("Contacts");
 
                     b.Navigation("Messages");

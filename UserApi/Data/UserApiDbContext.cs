@@ -19,6 +19,7 @@ namespace UserApi.Data
         public DbSet<Group> Groups { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
         public DbSet<Contact> Contacts { get; set; }
+        public DbSet<ContactRequest> ContactRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,8 +49,12 @@ namespace UserApi.Data
 
             // Contact
             modelBuilder.Entity<Contact>().ToTable("Contacts");
-            modelBuilder.Entity<Contact>().HasKey(c => c.Id);
-            modelBuilder.Entity<Contact>().HasOne(c => c.UserContact).WithMany(u => u.Contacts).HasForeignKey(c => c.UserSenderId);
+
+            // ContactRequest
+            modelBuilder.Entity<ContactRequest>().ToTable("ContactRequests");
+            modelBuilder.Entity<ContactRequest>().HasKey(cr => new { cr.UserSenderId, cr.UserReceiverId });
+            modelBuilder.Entity<ContactRequest>().HasOne(cr => cr.UserSender).WithMany(u => u.ContactRequestsSent).HasForeignKey(cr => cr.UserSenderId);
+            modelBuilder.Entity<ContactRequest>().HasOne(cr => cr.UserReceiver).WithMany(u => u.ContactRequestsReceived).HasForeignKey(cr => cr.UserReceiverId);
         }
     }
 }

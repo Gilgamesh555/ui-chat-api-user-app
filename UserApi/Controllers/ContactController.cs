@@ -12,10 +12,12 @@ namespace UserApi.Controllers
     public class ContactController : ControllerBase
     {
         private readonly ContactService _contactService;
+        private readonly ContactRequestService _contactRequestService;
 
-        public ContactController(ContactService service)
+        public ContactController(ContactService service, ContactRequestService contactRequestService)
         {
             _contactService = service;
+            _contactRequestService = contactRequestService;
         }
 
         // GET: api/contact
@@ -42,18 +44,24 @@ namespace UserApi.Controllers
 
         // POST: api/contact
         [HttpPost]
-        public async Task<ActionResult<Contact>> Create(Contact contact)
+        public async Task<ActionResult<Contact>> Create(ContactDto contact)
         {
-            Console.WriteLine(contact.UserReceiverId);
-            var createdContact = await _contactService.Create(contact);
+            var newContact = new Contact
+            {
+                UserSenderId = contact.UserSenderId,
+                UserReceiverId = contact.UserReceiverId,
+            };
+
+            var createdContact = await _contactService.Create(newContact);
+
             return CreatedAtAction(nameof(GetContact), new { id = createdContact.Id }, createdContact);
         }
 
         // GET: api/contact/user/{userId}
         [HttpGet("user/{userId}")]
-        public async Task<ActionResult<IEnumerable<UserSearchRequest>>> GetContactsByUser(int userId)
+        public async Task<ActionResult<IEnumerable<UserSearchRequest>>> GetContactRequestsByUser(int userId)
         {
-            var contacts = await _contactService.GetRequests(userId);
+            var contacts = await _contactRequestService.GetRequests(userId);
 
             return Ok(contacts);
         }
@@ -63,15 +71,9 @@ namespace UserApi.Controllers
         public async Task<IActionResult> UpdateStatusById(int id, [FromBody] MessageStatus status)
         {
             var contact = await _contactService.GetById(id);
+            var updateStatus = await _contactRequestService.UpdateStatusById(contact.UserSenderId, contact.UserReceiverId, status);
 
-            if (contact == null)
-            {
-                return NotFound();
-            }
-
-            await _contactService.UpdateStatusById(id, status);
-
-            return Ok(status);
+            return Ok(updateStatus);
         }
     }
 }

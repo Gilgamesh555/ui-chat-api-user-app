@@ -39,5 +39,11 @@ namespace UserApi.Models
 
         [JsonIgnore]
         public ICollection<UserGroup>? UserGroups { get; set; }
+
+        [JsonIgnore]
+        public ICollection<ContactRequest>? ContactRequestsSent { get; set; }
+
+        [JsonIgnore]
+        public ICollection<ContactRequest>? ContactRequestsReceived { get; set; }
     }
 }
