@@ -164,6 +164,7 @@ namespace UserApi.Service
                         LastName = user.LastName,
                         UserSenderId = isUserSender ? contact.UserSenderId : contact.UserReceiverId,
                         UserReceiverId = isUserSender ? contact.UserReceiverId : contact.UserSenderId,
+                        ChatId = contact.chatId,
                     });
                 }
             }

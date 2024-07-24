@@ -22,6 +22,7 @@ namespace UserApi.Dtos
         public required string Email { get; set; }
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
+        public string? ChatId { get; set; }
         public MessageStatus? Status { get; set; }
 
         public int? UserSenderId { get; set; }

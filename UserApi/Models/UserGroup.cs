@@ -7,7 +7,6 @@ namespace UserApi.Models
 {
     public class UserGroup
     {
-        [JsonIgnore]
         [Key, Column(Order = 0)]
         public int UserId { get; set; }
         [Key, Column(Order = 1)]

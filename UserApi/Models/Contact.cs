@@ -12,6 +12,7 @@ namespace UserApi.Models
         public int Id { get; set; }
         public int UserSenderId { get; set; }
         public int UserReceiverId { get; set; }
+        public string? chatId { get; set; }
 
         //Navigation
         [JsonIgnore]

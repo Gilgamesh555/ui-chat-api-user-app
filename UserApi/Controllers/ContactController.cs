@@ -75,5 +75,20 @@ namespace UserApi.Controllers
 
             return Ok(updateStatus);
         }
+
+        // Get if the user is already a contact or if there is a request pending
+        // Get: api/contact/check-request/{userSenderId}/{userReceiverId}
+        [HttpGet("check-request/{userSenderId}/{userReceiverId}")]
+        public async Task<ActionResult<UserSearchRequest>> GetContactRequest(int userSenderId, int userReceiverId)
+        {
+            var contact = await _contactRequestService.CheckRequest(userSenderId, userReceiverId);
+
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(contact);
+        }
     }
 }

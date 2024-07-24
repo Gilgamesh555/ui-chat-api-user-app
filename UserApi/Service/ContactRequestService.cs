@@ -97,5 +97,30 @@ namespace UserApi.Service
 
             return contactRequest;
         }
+
+        // Get if the user is already a contact or if there is a request pending
+        public async Task<ContactRequest?> CheckRequest(int userSenderId, int userReceiverId)
+        {
+            var contactRequest = await _context.ContactRequests.FindAsync(userSenderId, userReceiverId);
+
+            if (contactRequest == null)
+            {
+                contactRequest = await _context.ContactRequests.FindAsync(userReceiverId, userSenderId);
+            }
+
+            var contact = await _context.Contacts.Where(c => c.UserSenderId == userSenderId && c.UserReceiverId == userReceiverId).FirstOrDefaultAsync();
+
+            if (contact == null)
+            {
+                contact = await _context.Contacts.Where(c => c.UserSenderId == userReceiverId && c.UserReceiverId == userSenderId).FirstOrDefaultAsync();
+            }
+
+            if (contact == null && contactRequest == null)
+            {
+                return null;
+            }
+
+            return contactRequest;
+        }
     }
 }
